@@ -81,6 +81,7 @@ function addPatient() {
 	.attr("r", 5);
 	
 	circle
+    .transition().duration(1000)
 	.attr("cx", xScale(patient.disease))
 	.attr("cy", yScale(patient.test))
 	.attr("opacity", 0.7)
@@ -88,21 +89,23 @@ function addPatient() {
 	.attr("fill", isInfected(patient) ? "red" : "black")
 	.attr("stroke", isPositive(patient) ? "orange" : "");
 
-	var infected = [];
-	var notInfected = [];
+	var infected = population.filter(isInfected);
+	var notInfected = population.filter( function (d) {
+        return ! isInfected(d);
+    });
 
-	var infectedPositive = [];
+	var infectedPositive = infected.filter(isPositive);
 	d3.select("#truepos").text(infectedPositive.length);
 	d3.select("#falseneg").text(infected.length - infectedPositive.length);
 
-	var notInfectedPositive = [];
+	var notInfectedPositive = notInfected.filter(isPositive);
 	d3.select("#falsepos").text(notInfectedPositive.length);
 	d3.select("#trueneg").text(notInfected.length - notInfectedPositive.length);
 
 	return population.length == populationSize;
 }
 
-
+setInterval(addPatient, 300);
 
 </script>
 
