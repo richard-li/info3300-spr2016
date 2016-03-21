@@ -36,7 +36,7 @@ var xScale = d3.scale.linear()
   
 // We'll use a log scale on the y axis, so we can see both low-frequency
 // words and high frequency words.
-var yScale = d3.scale.linear()
+var yScale = d3.scale.log()
   .domain(countMinMax).range([height - padding, padding]);
 
 var xAxis = d3.svg.axis().scale(xScale);
@@ -112,15 +112,23 @@ function process() {
 	display("sanders", "clinton");
 }
 
+function prob(word, user) {
+	return (wordCounts[word][user] + 1) / (tokenTotals[user] + vocabulary.length);
+}
+
+function logProb(word, user) {
+	return Math.log((wordCounts[word][user] + 1) / (tokenTotals[user] + vocabulary.length));
+}
+
 function display(leftUser, rightUser) {
 
 	words
 	.attr("x", function(w) { 
 		
-		var leftProbability = (wordCounts[w][leftUser] + 1) / tokenTotals[leftUser];
-		var rightProbability = (wordCounts[w][rightUser] + 1) / tokenTotals[rightUser];
+		var leftProbability = prob(w, leftUser);
+		var rightProbability = prob(w, rightUser);
 		
-		return xScale(0); // what should go here?
+		return xScale(Math.log(rightProbability / leftProbability)); // what should go here?
 	});
 	
 }
