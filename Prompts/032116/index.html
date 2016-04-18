@@ -98,7 +98,7 @@ lines.enter().append("line")
 .attr("y2", function(d) { return yScale(d.y); })
 .style("stroke", "#aaa");
 
-centroids = new Array(3);
+centroids = new Array(4);
 for (var i = 0; i < centroids.length; i++) {
 	centroids[i] = { x: seededRandom(), y: seededRandom() };
 }
@@ -118,6 +118,10 @@ function moveMeans() {
 	centroids.forEach(function (centroid, i) {
 		var assignedPoints = 
 			points.filter(function (point) { return point.cluster == i; });
+
+		if (assignedPoints.length == 0) {
+
+		}
 		
 		centroid.x = d3.mean(assignedPoints, function (point) { return point.x; });
 		centroid.y = d3.mean(assignedPoints, function (point) { return point.y; });
