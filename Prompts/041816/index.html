@@ -70,6 +70,13 @@ d3.csv("People.csv", function (error, rows) {
 
 	function inExtent(point) {
 		// Is the point in the current extent?
+		var pixelX = xScale(point.x);
+		var pixelY = yScale(point.y);
+
+		return pixelX > currentExtent[0][0] 
+			&& pixelX < currentExtent[1][0]
+			&& pixelY > currentExtent[0][1]
+			&& pixelY < currentExtent[1][1];
 	}
 
 	// Calculate the slope and intercept given 
@@ -79,7 +86,7 @@ d3.csv("People.csv", function (error, rows) {
 
 		// Replace this with an expression that will filter
 		// out points not in the current selection
-		var activePoints = points;
+		var activePoints = points.filter(inExtent);
 
 		var meanX = d3.mean(activePoints, function (d) { 
 			return d.x;
@@ -107,18 +114,18 @@ d3.csv("People.csv", function (error, rows) {
 	// Previously we used -3 to 3 as a default x range.
 	 // What should we do now?
 	var regressionLine = svg.append("line")
-	.attr("x1", xScale(-3))
-	.attr("y1", yScale(model.slope * -3 + model.intercept))
-	.attr("x2", xScale(3))
-	.attr("y2", yScale(model.slope * 3 + model.intercept))
+	.attr("x1", xScale(xDomain[0]))
+	.attr("y1", yScale(model.slope * xDomain[0] + model.intercept))
+	.attr("x2", xScale(xDomain[1]))
+	.attr("y2", yScale(model.slope * xDomain[1] + model.intercept))
 	.style("stroke", "rgb(228, 26, 28)")
 	.style("stroke-width", 3);
 
 	function moveLine() {
 		// Move the regression line
 		regressionLine
-		.attr("y1", yScale(model.slope * -3 + model.intercept))
-		.attr("y2", yScale(model.slope * 3 + model.intercept));
+		.attr("y1", yScale(model.slope * xDomain[0] + model.intercept))
+		.attr("y2", yScale(model.slope * xDomain[1] + model.intercept));
 	}
 
 	brush = d3.svg.brush()
@@ -129,7 +136,9 @@ d3.csv("People.csv", function (error, rows) {
 
 	function brushed () {
 		// Act when the "brush" event occurs
-		
+		currentExtent = brush.extent();
+		model = leastSquares();
+		moveLine();
 	}
 
 	svg.append("g")
